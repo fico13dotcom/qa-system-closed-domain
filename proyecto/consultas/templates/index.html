@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Mi Plantilla</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+
+<body>
+    <h1>Ingrese el dominio deseado</h1>
+    <form id="miFormulario" method="post">
+        {% csrf_token %}
+        <p>
+            <input type="text" name="dominio">
+        </p>
+        <select class="subdominios" name="subdominios" multiple="multiple">
+            <option></option>
+        </select>
+        <input type="hidden" name="contador" id="contador" value="0">
+        <input type="hidden" name="valores_seleccionados" id="valores_seleccionados">
+        <div>
+            <input type="button" id="masSubdominios" value="Obtener más subdominios">
+            <input type="submit" id="enviarTodo" value="Enviar">
+        </div>
+    </form>
+    <p id="resultado"></p>
+
+
+    <script>
+        $(document).ready(function () {
+            var valoresSeleccionados = []; // Array para almacenar los valores seleccionados
+
+            $('#masSubdominios').click(function (event) {
+                event.preventDefault();  // Evitar el envío normal del formulario
+                var select = $('.subdominios');
+                var nuevosValoresSeleccionados = select.val();
+                // Agregar los nuevos valores seleccionados al array
+                valoresSeleccionados = valoresSeleccionados.concat(nuevosValoresSeleccionados);
+                // Almacenar los valores seleccionados en el campo oculto
+                $('#valores_seleccionados').val(JSON.stringify(valoresSeleccionados));
+
+                $.ajax({
+                    url: '{% url "subdominios" %}',
+                    type: 'POST',
+                    data: $('#miFormulario').serialize(),
+                    success: function (response) {
+                        var select = $('.subdominios');
+                        select.empty(); // Eliminar opciones actuales
+
+                        // Convertir la respuesta en un objeto JavaScript
+                        var data = JSON.parse(response);
+
+                        // Iterar sobre el objeto data
+                        $.each(data, function (index, value) {
+                            select.append($('<option></option>').val(value).text(value));
+                        });
+
+                        // Establecer los valores seleccionados en función de los valores devueltos por el view
+                        select.val(data);
+                        select.trigger('change');
+                    }
+                });
+            });
+
+            $('#miFormulario').submit(function (event) {
+                event.preventDefault();  // Evitar el envío normal del formulario
+                var select = $('.subdominios');
+                var nuevosValoresSeleccionados = select.val();
+                // Agregar los nuevos valores seleccionados al array
+                valoresSeleccionados = valoresSeleccionados.concat(nuevosValoresSeleccionados);
+                // Almacenar los valores seleccionados en el campo oculto
+                $('#valores_seleccionados').val(JSON.stringify(valoresSeleccionados));
+                $(this).unbind('submit').submit();
+            });
+
+            $('.subdominios').select2({
+                placeholder: 'Seleccione los subdominios',
+                width: "90%"
+            });
+
+            $('#masSubdominios').click(function () {
+                var contador = $('#contador');
+                contador.val(parseInt(contador.val()) + 1);
+            });
+        });
+
+    </script>
+</body>
+
+</html>

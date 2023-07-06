@@ -47,3 +47,56 @@ def receive_broaders_lists(list_broaders,level):
 
     resultados = get_results(query)
     return resultados["results"]["bindings"]
+
+
+############################## RECURSOS ########################################
+
+'''
+resource = quote(i)
+        query = """
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+
+        select distinct ?wikipedia_page
+        where {
+
+            ?subject dcterms:subject dbc:Air_pollution.
+            ?subject foaf:isPrimaryTopicOf ?wikipedia_page
+
+        } LIMIT 100
+    resultados = get_results(query)
+    return resultados["results"]["bindings"]
+'''
+
+def obtenerSubjects(lista_conceptos):
+
+    for i in lista_conceptos:
+
+        resource = quote(i)
+        query = """
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+
+        select distinct ?w
+            {
+                {VALUES (?r) {(dbc:%s)}
+
+                    ?subject dcterms:subject ?r.
+                    ?subject foaf:isPrimaryTopicOf ?w
+
+
+                FILTER (!regex(?w, "lists"))
+            }
+    
+        }    
+        """%(resource)
+
+    resultados = get_results(query)
+    return resultados["results"]["bindings"]
+        
+
+
+
+

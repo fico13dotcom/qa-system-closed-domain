@@ -85,11 +85,8 @@ def obtenerSubjects(lista_conceptos):
 
                     ?subject dcterms:subject ?r.
                     ?subject foaf:isPrimaryTopicOf ?w
-
-
-                FILTER (!regex(?w, "lists"))
             }
-    
+
         }    
         """%(resource)
 
@@ -98,5 +95,22 @@ def obtenerSubjects(lista_conceptos):
         
 
 
+#####################################################################
+
+# MENU QUE DEBERIA PRESENTAR AL ADMIN PARA QUE ESCOJA UN CONCEPTO
 
 
+"""
+select distinct ?r (count(*) AS ?number)
+where
+    {
+        ?r rdf:type skos:Concept ; rdfs:label ?label.
+        ?c skos:broader  ?r
+        FILTER REGEX(?label, "^Pollu")
+        FILTER(LANG(?label) = "en")
+        FILTER (!regex(?r, "lists"))
+    } GROUP BY ?r ?label HAVING(count(*) > 2)
+    ORDER BY DESC(?number)
+"""
+
+######################################################################

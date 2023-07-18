@@ -139,3 +139,22 @@ where
 
 ######################################################################
 
+def getConceptsBuscador(concepto):
+
+    resource = quote(resource)
+    query = """
+        select distinct ?r (count(*) AS ?number)
+        where
+            {
+                ?r rdf:type skos:Concept ; rdfs:label ?label.
+                ?c skos:broader  ?r
+                FILTER REGEX(?label, "^%s")
+                FILTER(LANG(?label) = "en")
+                FILTER (!regex(?r, "lists"))
+            } GROUP BY ?r ?label HAVING(count(*) > 2)
+            ORDER BY DESC(?number)
+        }    
+    """ %(str(concepto))
+
+    resultados = get_results(query)
+    return resultados["results"]["bindings"]

@@ -6,9 +6,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
+    <span><a href="{% url 'logout' %}">Salir</a></span>
     <h1>Ingrese el dominio deseado</h1>
     <form id="miFormulario" method="post">
         {% csrf_token %}
@@ -76,8 +97,10 @@
             });
 
             $('.subdominios').select2({
+                closeOnSelect: false,
                 placeholder: 'Seleccione los subdominios',
-                width: "90%"
+                width: "90%",
+                sorter: data => data.sort((a, b) => a.text.localeCompare(b.text)),
             });
 
             $('#masSubdominios').click(function () {

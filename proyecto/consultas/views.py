@@ -1,21 +1,21 @@
 import json
 from SPARQLWrapper import JSON, SPARQLWrapper
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from urllib.parse import quote
+from django.contrib.auth.decorators import login_required
+from .decorators import unauthenticated_user, allowed_users
 
 
 endPoint = "https://dbpedia.org/sparql"
 sparql = SPARQLWrapper(endPoint)
-
 
 def get_results(query):
     sparql.setReturnFormat(JSON)
     sparql.setQuery(query)
     results = sparql.query().convert()
     return results
-
 
 def get_reource_query(resource, level):
     resource = quote(resource)
@@ -38,14 +38,14 @@ def get_reource_query(resource, level):
     resultados = get_results(query)
     return resultados["results"]["bindings"]
 
-
 @csrf_exempt
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def index(request):
     if request.method == 'POST':
         valoresSeleccionados = request.POST.get('valores_seleccionados')
         print(valoresSeleccionados)
     return render(request, 'index.html')
-
 
 def obtenerSubdominios(request):
     if request.method == 'POST':
@@ -74,3 +74,10 @@ def obtenerSubdominios(request):
             return JsonResponse(json_data, safe=False)
 
     return JsonResponse({'error': 'No se pudo procesar la solicitud'})
+
+def loginPage(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # user = authenticate(request, username=username, password=password)

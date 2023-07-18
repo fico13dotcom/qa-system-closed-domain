@@ -79,6 +79,31 @@ def obtenerSubjects(lista_conceptos):
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX dct: <http://purl.org/dc/terms/>
 
+        select distinct ?subject
+            {
+                {VALUES (?r) {(dbc:%s)}
+
+                    ?subject dcterms:subject ?r.
+                    #?subject foaf:isPrimaryTopicOf ?w
+            }
+
+        }    
+        """%(resource)
+
+    resultados = get_results(query)
+    return resultados["results"]["bindings"]
+        
+
+def obtenerRecursosWikipedia(lista_conceptos):
+
+    for i in lista_conceptos:
+
+        resource = quote(i)
+        query = """
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+
         select distinct ?w
             {
                 {VALUES (?r) {(dbc:%s)}
@@ -92,8 +117,6 @@ def obtenerSubjects(lista_conceptos):
 
     resultados = get_results(query)
     return resultados["results"]["bindings"]
-        
-
 
 #####################################################################
 
@@ -106,11 +129,13 @@ where
     {
         ?r rdf:type skos:Concept ; rdfs:label ?label.
         ?c skos:broader  ?r
-        FILTER REGEX(?label, "^Pollu")
+        FILTER REGEX(?label, "^COVI")
         FILTER(LANG(?label) = "en")
         FILTER (!regex(?r, "lists"))
     } GROUP BY ?r ?label HAVING(count(*) > 2)
     ORDER BY DESC(?number)
+    
 """
 
 ######################################################################
+
